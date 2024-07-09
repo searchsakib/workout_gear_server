@@ -32,7 +32,7 @@ const dbConnect = async () => {
 dbConnect();
 
 //! Database Collection
-// const userInfoCollection = client.db('bloodAid').collection('userInfo');
+const productsCollection = client.db('workoutGear').collection('products');
 // const donationRequestCollection = client
 //   .db('bloodAid')
 //   .collection('donationRequest');
