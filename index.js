@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@atlascluster.j32tjfb.mongodb.net/?retryWrites=true&w=majority&appName=AtlasCluster`;
-console.log(uri);
+// console.log(uri);
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -54,7 +54,11 @@ app.get('/api/v1/products', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching products:', error);
-    res.status(500).json('Internal Server Error');
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error?.message : null,
+    });
   }
 });
 
@@ -64,7 +68,7 @@ app.get('/api/v1/products/:id', async (req, res) => {
   try {
     const product = await productsCollection.findOne({ _id: new ObjectId(id) });
     if (!product) {
-      res.status(404).json('Product not found');
+      res.status(404).json({ success: false, message: 'Product not found' });
       return;
     }
 
@@ -75,7 +79,11 @@ app.get('/api/v1/products/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('Error fetching product by ID:', error);
-    res.status(500).json('Internal Server Error');
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error?.message : null,
+    });
   }
 });
 
@@ -99,7 +107,11 @@ app.post('/api/v1/products', async (req, res) => {
     });
   } catch (error) {
     console.error('Error creating new product:', error);
-    res.status(500).json('Internal Server Error');
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error?.message : null,
+    });
   }
 });
 
@@ -143,7 +155,11 @@ app.put('/api/v1/products/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating product:', error);
-    res.status(500).json('Internal Server Error');
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error?.message : null,
+    });
   }
 });
 
@@ -169,7 +185,11 @@ app.delete('/api/v1/products/:id', async (req, res) => {
     });
   } catch (error) {
     console.error('Error deleting product:', error);
-    res.status(500).json('Internal Server Error');
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error?.message : null,
+    });
   }
 });
 //!  Product Management ends
