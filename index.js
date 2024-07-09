@@ -99,6 +99,13 @@ app.post('/api/v1/products', async (req, res) => {
       _id: result.insertedId,
     });
 
+    if (!insertedProduct) {
+      return res.status(500).json({
+        success: false,
+        message: 'Add product failed',
+      });
+    }
+
     // res.status(201).send(insertedProduct);
     res.status(201).json({
       success: true,
