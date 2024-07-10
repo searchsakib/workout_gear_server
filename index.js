@@ -33,6 +33,7 @@ dbConnect();
 
 //! Database Collection
 const productsCollection = client.db('workoutGear').collection('products');
+const cartsCollection = client.db('workoutGear').collection('carts');
 // const donationRequestCollection = client
 //   .db('bloodAid')
 //   .collection('donationRequest');
@@ -242,6 +243,93 @@ app.delete('/api/v1/products/:id', async (req, res) => {
   }
 });
 //!  Product Management ends
+
+//! Add to Cart Starts
+app.post('/api/v1/cart', async (req, res) => {
+  const { productId, quantity } = req.body;
+
+  try {
+    // Check if product exists and retrieve its details
+    const product = await productsCollection.findOne({
+      _id: new ObjectId(productId),
+    });
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found',
+      });
+    }
+
+    // Check if the requested quantity is available
+    if (quantity > product.stock) {
+      return res.status(400).json({
+        success: false,
+        message: 'Requested quantity exceeds available stock',
+        availableQuantity: product.stock,
+      });
+    }
+
+    // Update the cart with the product and quantity
+    let cartItem = await cartsCollection.findOne({
+      productId: new ObjectId(productId),
+    });
+
+    if (cartItem) {
+      // Update the quantity of the existing cart item
+      await cartsCollection.updateOne(
+        { _id: cartItem._id },
+        { $inc: { quantity: quantity } }
+      );
+
+      // Fetch the updated cart item
+      cartItem = await cartsCollection.findOne({ _id: cartItem._id });
+    } else {
+      // Add a new item to the cart
+      await cartsCollection.insertOne({
+        productId: new ObjectId(productId),
+        name: product.name,
+        price: product.price,
+        quantity: quantity,
+      });
+
+      // Fetch the newly inserted cart item
+      cartItem = await cartsCollection.findOne({
+        productId: new ObjectId(productId),
+      });
+    }
+
+    // Deduct the ordered quantity from the product's stock
+    await productsCollection.updateOne(
+      { _id: new ObjectId(productId) },
+      { $inc: { stock: -quantity } }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Product added to cart successfully',
+      cart: cartItem,
+    });
+  } catch (error) {
+    console.error('Error adding product to cart:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: process.env.NODE_ENV === 'development' ? error?.message : null,
+    });
+  }
+});
+//! Add to Cart Ends
+
+//! Get Cart Items Starts
+//! should be handled in frontend
+// app.get('/api/v1/cart', (req, res) => {
+//   res.status(200).json({
+//     success: true,
+//     message: 'Cart items retrieved successfully',
+//     cart: req.session.cart,
+//   });
+// });
+//! Get Cart Items Ends
 
 app.listen(port, () => {
   console.log(`Workout Gear is running on port:${port}`);
