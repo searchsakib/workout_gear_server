@@ -46,10 +46,52 @@ app.get('/', (req, res) => {
 //* Get all products
 app.get('/api/v1/products', async (req, res) => {
   try {
-    const products = await productsCollection.find().toArray();
+    const { search, categories, minPrice, maxPrice, sort } = req.query;
+
+    let query = {};
+
+    //search
+    if (search) {
+      query.name = { $regex: search, $options: 'i' };
+    }
+
+    // category filter
+    if (categories) {
+      const categoryList = categories.split(',');
+      query.category = { $in: categoryList };
+    }
+
+    // Price range filter
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = parseFloat(minPrice);
+      if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+    }
+
+    // Sorting
+    let sortOption = {};
+    if (sort === 'priceAsc') {
+      sortOption = { price: 1 };
+    } else if (sort === 'priceDesc') {
+      sortOption = { price: -1 };
+    }
+
+    const products = await productsCollection
+      .find(query)
+      .sort(sortOption)
+      .toArray();
+
+    if (products.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No products found matching the criteria',
+        data: [],
+      });
+    }
+
     res.status(200).json({
       success: true,
-      message: 'All Products retrieved succesfully',
+      message: 'Products retrieved succesfully',
       data: products,
     });
   } catch (error) {
