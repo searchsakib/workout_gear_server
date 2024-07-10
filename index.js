@@ -43,7 +43,7 @@ app.get('/', (req, res) => {
 });
 
 //!  Product Management Starts
-// Get all products
+//* Get all products
 app.get('/api/v1/products', async (req, res) => {
   try {
     const products = await productsCollection.find().toArray();
@@ -62,7 +62,7 @@ app.get('/api/v1/products', async (req, res) => {
   }
 });
 
-// Get a product by ID
+//* Get a product by ID
 app.get('/api/v1/products/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -87,7 +87,7 @@ app.get('/api/v1/products/:id', async (req, res) => {
   }
 });
 
-// Create a new product
+//* Create a new product
 app.post('/api/v1/products', async (req, res) => {
   const { name, price, description, images, category, stock } = req.body;
   const newProduct = { name, price, description, images, category, stock };
@@ -122,7 +122,7 @@ app.post('/api/v1/products', async (req, res) => {
   }
 });
 
-// Update a product by ID
+//* Update a product by ID
 app.put('/api/v1/products/:id', async (req, res) => {
   const id = req.params.id;
   const filter = { _id: new ObjectId(id) };
@@ -170,7 +170,7 @@ app.put('/api/v1/products/:id', async (req, res) => {
   }
 });
 
-// Delete a product by ID
+//* Delete a product by ID
 app.delete('/api/v1/products/:id', async (req, res) => {
   const { id } = req.params;
 
