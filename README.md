@@ -19,6 +19,12 @@ Live link: https://workout-gear-server.vercel.app/
 
 1. Start the server:
 
-   npm run dev
+first add this env:
+
+DB_USER=
+DB_PASS=
+NODE_ENV='development'
+
+npm run dev
 
 2. The server will start running on port 5000 by default.
